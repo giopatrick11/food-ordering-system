@@ -72,4 +72,26 @@ router.delete('/:id/menu/:itemId', async (req, res) => {
   }
 });
 
+// Update menu item
+router.put('/:id/menu/:itemId', async (req, res) => {
+  try {
+    const { name, price, description } = req.body;
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { _id: req.params.id, "menu._id": req.params.itemId },
+      {
+        $set: {
+          "menu.$.name": name,
+          "menu.$.price": price,
+          "menu.$.description": description,
+        }
+      },
+      { new: true, runValidators: true }
+    );
+    if (!restaurant) return res.status(404).send();
+    res.send(restaurant);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 module.exports = router;
