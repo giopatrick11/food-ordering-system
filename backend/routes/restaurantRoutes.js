@@ -94,4 +94,26 @@ router.put('/:id/menu/:itemId', async (req, res) => {
   }
 });
 
+// Update restaurant available modes
+router.put('/:id/modes', async (req, res) => {
+  console.log(`Updating modes for restaurant ${req.params.id}:`, req.body);
+  try {
+    const { available_modes } = req.body;
+    const restaurant = await Restaurant.findByIdAndUpdate(
+      req.params.id,
+      { available_modes },
+      { new: true, runValidators: true }
+    );
+    if (!restaurant) {
+      console.log("Restaurant not found:", req.params.id);
+      return res.status(404).send({ message: "Restaurant not found" });
+    }
+    console.log("Update successful:", restaurant.available_modes);
+    res.send(restaurant);
+  } catch (error) {
+    console.error("Update failed:", error);
+    res.status(400).send(error);
+  }
+});
+
 module.exports = router;

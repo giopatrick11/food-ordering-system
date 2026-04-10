@@ -19,6 +19,7 @@ const seedData = async () => {
       {
         name: 'Burger Palace',
         cuisine: 'American',
+        available_modes: ['pickup', 'delivery'],
         menu: [
           { name: 'Classic Burger', price: 10, description: 'Beef patty, lettuce, tomato' },
           { name: 'Cheese Burger', price: 12, description: 'Beef patty, extra cheese' },
@@ -28,6 +29,7 @@ const seedData = async () => {
       {
         name: 'Sushi Zen',
         cuisine: 'Japanese',
+        available_modes: ['pickup', 'delivery'],
         menu: [
           { name: 'California Roll', price: 8, description: 'Crab, avocado, cucumber' },
           { name: 'Salmon Nigiri', price: 12, description: 'Fresh salmon on rice' },
@@ -37,6 +39,7 @@ const seedData = async () => {
       {
         name: 'Pasta House',
         cuisine: 'Italian',
+        available_modes: ['pickup', 'delivery'],
         menu: [
           { name: 'Spaghetti Carbonara', price: 15, description: 'Egg, cheese, pancetta' },
           { name: 'Lasagna', price: 18, description: 'Meaty layered pasta' },
@@ -83,27 +86,35 @@ const seedData = async () => {
       }
     ]);
 
-    // Create some orders for analytics
-    const orders = [
-      {
-        user_id: users[0]._id,
-        restaurant_id: restaurants[0]._id,
-        items: [{ name: 'Classic Burger', quantity: 2, price: 10 }],
-        total_price: 20,
-        status: 'delivered'
-      },
-      {
-        user_id: users[0]._id,
-        restaurant_id: restaurants[1]._id,
-        items: [{ name: 'Salmon Nigiri', quantity: 1, price: 12 }],
-        total_price: 12,
-        status: 'pending'
-      }
-    ];
+    // Create some orders for analytics (90 days of data for Daily/Weekly/Monthly charts)
+    const days = 90;
+    const orders = [];
+    const now = new Date();
+    
+    for (let i = 0; i < 100; i++) {
+      const randomDay = Math.floor(Math.random() * days);
+      const date = new Date(now);
+      date.setDate(date.getDate() - randomDay);
+      
+      // Randomly pick a restaurant
+      const rest = restaurants[Math.floor(Math.random() * restaurants.length)];
+      const item = rest.menu[Math.floor(Math.random() * rest.menu.length)];
+      const quantity = Math.floor(Math.random() * 3) + 1;
+      
+      orders.push({
+        user_id: users[Math.floor(Math.random() * 2)]._id, // Randomly pick John or Admin
+        restaurant_id: rest._id,
+        items: [{ name: item.name, quantity: quantity, price: item.price }],
+        total_price: item.price * quantity,
+        delivery_mode: Math.random() > 0.5 ? 'pickup' : 'delivery',
+        status: 'delivered',
+        order_date: date
+      });
+    }
 
     await Order.insertMany(orders);
 
-    console.log("Database seeded successfully with roles!");
+    console.log("Database seeded successfully with all fields!");
     process.exit();
   } catch (error) {
     console.error("Error seeding database:", error);

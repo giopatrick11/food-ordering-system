@@ -11,6 +11,11 @@ const OrderSchema = new mongoose.Schema({
   restaurant_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
   items: [OrderItemSchema],
   total_price: { type: Number, required: true },
+  delivery_mode: { 
+    type: String, 
+    enum: ['pickup', 'delivery'], 
+    default: 'pickup' 
+  },
   status: { 
     type: String, 
     enum: ['pending', 'preparing', 'delivered', 'cancelled'], 
